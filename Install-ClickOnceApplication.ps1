@@ -2,7 +2,7 @@
 .SYNOPSIS
     Download and install a ClickOnce application
 .EXAMPLE
-    PS C:\> Install-ClickOnceApplication 'https://lovettsoftwarestorage.blob.core.windows.net/downloads/XmlNotepad/XmlNotepad.application'
+    PS C:\> Install-ClickOnceApplication.ps1 'https://lovettsoftwarestorage.blob.core.windows.net/downloads/XmlNotepad/XmlNotepad.application'
     Download and install XML Notepad
 .NOTES
     https://docs.microsoft.com/en-us/dotnet/api/system.deployment.application.inplacehostingmanager?view=netframework-4.8
