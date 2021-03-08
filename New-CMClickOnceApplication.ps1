@@ -44,18 +44,18 @@ New-CMApplication @appsplat -ErrorAction Stop
 #region Deployment Type
 $dtsplat = @{
     ApplicationName = $appsplat.Name
-    DeploymentTypeName = "{0} ClickOnce Installer" -f $appsplat.Name
+    DeploymentTypeName = '{0} ClickOnce Installer' -f $appsplat.Name
     InstallCommand = 'powershell.exe -noprofile -noninteractive -executionpolicy bypass -File Install-ClickOnceApplication.ps1 -Manifest {0}' -f $manifest
-    ScriptText = @"
+    ScriptText = @'
 Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*,HKCU:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* -ErrorAction SilentlyContinue | ? DisplayName -like '{0}'
-"@ -f $appsplat.Name
+'@ -f $appsplat.Name
     ScriptLanguage = 'PowerShell'
     InstallationBehaviorType = 'InstallForUser'
     ContentLocation = $ContentLocation
     UserInteractionMode = 'Hidden'
-    UninstallCommand = @"
+    UninstallCommand = @'
 powershell.exe -noninteractive -noprofile -executionpolicy bypass -command "& {{cmd.exe /C (gp HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*,HKCU:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* -ErrorAction SilentlyContinue | ? DisplayName -like '{0}' | Select -ExpandProperty UninstallString)}}"
-"@ -f $appsplat.Name # Or get the details from the manifest?
+'@ -f $appsplat.Name # Or get the details from the manifest?
     UninstallOption = 'NoneRequired'
 }
 
