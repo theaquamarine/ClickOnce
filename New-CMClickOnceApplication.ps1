@@ -44,7 +44,7 @@ New-CMApplication @appsplat -ErrorAction Stop
 #region Deployment Type
 $dtsplat = @{
     ApplicationName = $appsplat.Name
-    DeploymentTypeName = "$Name ClickOnce Installer"
+    DeploymentTypeName = "{0} ClickOnce Installer" -f $appsplat.Name
     InstallCommand = 'powershell.exe -noprofile -noninteractive -executionpolicy bypass -File Install-ClickOnceApplication.ps1 -Manifest {0}' -f $manifest
     ScriptText = @"
 Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*,HKCU:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* -ErrorAction SilentlyContinue | ? DisplayName -like '{0}'
@@ -54,8 +54,8 @@ Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*,HKC
     ContentLocation = $ContentLocation
     UserInteractionMode = 'Hidden'
     UninstallCommand = @"
-powershell.exe -noninteractive -noprofile -executionpolicy bypass -command "& {cmd.exe /C (gp HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*,HKCU:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* -ErrorAction SilentlyContinue | ? DisplayName -like 'XML Notepad' | Select -ExpandProperty UninstallString)}"
-"@ # Or get the details from the manifest?
+powershell.exe -noninteractive -noprofile -executionpolicy bypass -command "& {{cmd.exe /C (gp HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*,HKCU:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* -ErrorAction SilentlyContinue | ? DisplayName -like '{0}' | Select -ExpandProperty UninstallString)}}"
+"@ -f $appsplat.Name # Or get the details from the manifest?
     UninstallOption = 'NoneRequired'
 }
 
