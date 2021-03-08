@@ -4,8 +4,11 @@
 .DESCRIPTION
     Create an application in Configuration Manager using the details from a ClickOnce deployment manifest and a deployment type to silently install it using Install-ClickOnceApplication.ps1 for users.
 .EXAMPLE
-    PS P01:\> New-CMClickOnceApplication.ps1 -Manifest "https://lovettsoftwarestorage.blob.core.windows.net/downloads/XmlNotepad/XmlNotepad.application" -ContentLocation '\\localhost\c\ClickOnce'
+    PS P01:\> C:New-CMClickOnceApplication.ps1 -Manifest "https://lovettsoftwarestorage.blob.core.windows.net/downloads/XmlNotepad/XmlNotepad.application" -ContentLocation '\\localhost\c\ClickOnce'
     Create a ConfigMgr application to silently install XML Notepad using Install-ClickOnceApplication.ps1 located in \\localhost\c\ClickOnce
+
+    PS P01:\> . 'c:\Users\Administrator\clickonce\New-CMClickOnceApplication.ps1' 'https://sccmclictr.azurewebsites.net/ClickOnce/SCCMCliCtrWPF.application' '\\localhost\c$\Packages\ClickOnce'
+    Create a ConfigMgr application for Client Center for Configuration Manager's ClickOnce installer
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
