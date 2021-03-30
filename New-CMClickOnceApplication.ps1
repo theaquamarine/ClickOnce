@@ -21,16 +21,9 @@ param (
     [string]$ContentLocation
 )
 
-# read the application's manifest
-if (($uri = $manifest -as [uri]) -and ($uri.scheme -in 'http','https')) {
-    # There has got to be an easier way to deal with the BOM
-    $content = Invoke-WebRequest $manifest | Select-Object -ExpandProperty Content
-    $manifestContent = [System.Xml.XmlDocument]::new()
-    $manifestContent.Load([System.IO.MemoryStream]::new($content))
-} else {
-    [xml]$manifestContent = Get-Content $manifest
-}
+. .\Import-ClickOnceManifest.ps1
 
+$manifestContent = Import-ClickOnceManifest $manifest
 
 #region Application
 $appsplat = @{
