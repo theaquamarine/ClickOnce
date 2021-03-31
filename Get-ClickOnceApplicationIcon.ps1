@@ -4,11 +4,12 @@ function Get-ClickOnceApplicationIcon {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
-        $DeploymentManifestPath
+        $Manifest
     )
     # TODO: identify if it's a deployment manifest or app manifest & handle appopriately
+    # TODO: Save-ClickOnceApplicationIcon
 
-    [xml]$deploymentManifest = Import-ClickOnceManifest $deploymentManifestPath
+    [xml]$deploymentManifest = Import-ClickOnceManifest $Manifest
 
     # Get the canonical manifest location
     [uri]$deploymentManifestSourcePath = $deploymentManifest.assembly.deployment.deploymentProvider.codebase
