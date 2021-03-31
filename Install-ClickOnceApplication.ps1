@@ -10,9 +10,9 @@
 
 [CmdletBinding()]
 param (
-    [Parameter()]
     # The manifest file to install
-    [uri]$manifest = 'https://lovettsoftwarestorage.blob.core.windows.net/downloads/XmlNotepad/XmlNotepad.application',
+    [Parameter(Mandatory)]
+    [uri]$Manifest,
     # The file to log to, defaulting to %temp%\ClickOnceInstall.log
     [string]$logfile = (Join-Path $env:temp 'ClickOnceInstall.log')
 )
