@@ -23,6 +23,11 @@ function Import-ClickOnceManifest {
             $manifestContent.Load($ms)
         }
     } else {
+        # Might be neater to just use [uri] param
+        if (($uri = $manifest -as [uri]) -and ($uri.scheme -eq 'file')) {
+            $Manifest = $uri.AbsolutePath
+        }
+
         [xml]$manifestContent = Get-Content $manifest
     }
     $manifestContent
