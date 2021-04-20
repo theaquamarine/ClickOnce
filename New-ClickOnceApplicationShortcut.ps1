@@ -6,32 +6,26 @@
     Add a shortcut for Report Builder to the start menu
 #>
 
-[CmdletBinding(DefaultParameterSetName = 'Folder', SupportsShouldProcess)]
+[CmdletBinding(SupportsShouldProcess)]
 param (
     # The manifest file to install
     [Parameter(Mandatory)]
     $Manifest,
-    # The shortcut's location, including file name
-    [Parameter(Mandatory, ParameterSetName='Location')][ValidatePattern("(\.lnk|\.url)$")]
-    $Location,
-    # The name to install the app as. Defaults to app name from manifest.
-    [Parameter(ParameterSetName='Folder')]
+    # The name to install the app as. Defaults to product name from manifest.
     [Alias('AppName','Name')]
     [string]$Product,
-    # The folder to list the app in on the start menu. Defaults to publisher from the manifest.
-    [Parameter(ParameterSetName='Folder')][Alias('Publisher','MenuStructure')]
+    # The location to put the shortcut, absolute or relative to the user's Programs folder. Defaults to $programs\$publisher\$suite from the manifest.
+    [Alias('Publisher','MenuStructure','Location')]
     [string]$Folder,
     [string]$Description
 )
-    # TODO: Fix Location ParameterSet, rename to ExplicitLocation or something.
-        # TODO: Consider removing Publisher/Suite param.
-        # Relative to Programs
+    # Combine Folder + Product into single param with path + shortcut name?
         # Create normal Product.lnk if it's not a shortcut
-    # $IconLocation, # default to try from manifest
-    # $IconSaveLocation to pass to Save-ClickOnceApplicationIcon
-    # Other shortcut parameters:
+    # TODO: $IconSaveLocation to pass to Save-ClickOnceApplicationIcon
+    # TODO: Other shortcut parameters:
         # $Arguments,
         # [string]$Hotkey,
+        # $IconLocation, # default to try from manifest
         # $WindowStyle,
         # $WorkingDirectory
     # TODO: consider populating ARP, act like a custom installer? https://docs.microsoft.com/en-us/visualstudio/deployment/walkthrough-creating-a-custom-installer-for-a-clickonce-application?view=vs-2019
@@ -51,9 +45,10 @@ if (-not($Folder)) {
     $Folder = if ($Suite) { Join-Path $Publisher $Suite} else {$Publisher}
 }
 
-# TODO: if not $Folder.IsAbsolute {$Folder = Join-Path ([System.Environment]::GetFolderPath('Programs')) ($Folder)}
+$shortcutDir = if (Split-Path -IsAbsolute $Folder) {$Folder} else {
+    Join-Path ([System.Environment]::GetFolderPath('Programs')) $Folder
+}
 
-$shortcutDir = Join-Path ([System.Environment]::GetFolderPath('Programs')) ($Folder)
 $location = Join-Path $shortcutDir ($Product + '.lnk')
 
 if ($PSCmdlet.ShouldProcess($manifest, 'Retrieve icon')) {
