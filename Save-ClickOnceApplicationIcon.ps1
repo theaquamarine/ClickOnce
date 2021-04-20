@@ -1,7 +1,7 @@
 . .\Get-ClickOnceApplicationIcon.ps1
 
 function Save-ClickOnceApplicationIcon {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param (
         # The manifest to get the icon for
         [Parameter(Mandatory)]
@@ -14,16 +14,18 @@ function Save-ClickOnceApplicationIcon {
 
     [uri]$iconFile = Get-ClickOnceApplicationIcon $Manifest
 
-    if (Test-Path -PathType -Container $Destination) {
-        # Possibly better to use product name?
-        $iconfilename = Split-Path -Leaf $iconFile
+    if (Test-Path -PathType Container $Destination) {
+        # Possibly better to use product name? Icon filename's usually unique but product's probably more reliable
+        $iconfilename = (Split-Path -Leaf $iconFile) -replace '\.deploy$'
         $Destination = Join-Path $Destination $iconfilename
     }
 
-    if ($iconFile.scheme -in 'http','https') {
-        Invoke-WebRequest -Uri $iconFile -OutFile $Destination -ErrorAction Stop
-        Write-Output $Destination
-    } else {
-        Copy-Item -Path $iconFile.OriginalString -Destination $Destination -Force -PassThru
+    if ($PSCmdlet.ShouldProcess($Destination, 'Save icon')) {
+        if ($iconFile.scheme -in 'http','https') {
+            Invoke-WebRequest -Uri $iconFile -OutFile $Destination -ErrorAction Stop
+            Write-Output $Destination
+        } else {
+            Copy-Item -Path $iconFile.OriginalString -Destination $Destination -Force -PassThru
+        }
     }
 }
