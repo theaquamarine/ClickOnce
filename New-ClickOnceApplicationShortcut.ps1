@@ -18,8 +18,8 @@ param (
     [Parameter(ParameterSetName='Folder')]
     [string]$AppName, 
     # The folder to list the app in on the start menu. Defaults to publisher from the manifest.
-    [Parameter(ParameterSetName='Folder')][Alias('Folder')]
-    [string]$Publisher,
+    [Parameter(ParameterSetName='Folder')][Alias('Publisher')]
+    [string]$Folder,
     [string]$Description
 )
     # $IconLocation, # default to try from manifest
@@ -36,9 +36,14 @@ param (
 $TargetPath = $Manifest
 
 if (-not($AppName)) {$AppName = $xml.assembly.description.product}
-if (-not($Publisher)) {$Publisher = $xml.assembly.description.publisher}
+$Publisher = $xml.assembly.description.publisher
+$Suite = $xml.assembly.description.suite
 
-$shortcutDir = Join-Path ([System.Environment]::GetFolderPath('Programs')) ($Publisher)
+if (-not($Folder)) { 
+    $Folder = if ($Suite) { Join-Path $Publisher $Suite} else {$Publisher}
+}
+
+$shortcutDir = Join-Path ([System.Environment]::GetFolderPath('Programs')) ($Folder)
 $location = Join-Path $shortcutDir ($AppName + '.lnk')
 
 if ($PSCmdlet.ShouldProcess($manifest, 'Retrieve icon')) {
