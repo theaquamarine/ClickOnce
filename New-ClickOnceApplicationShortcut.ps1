@@ -6,7 +6,7 @@
     Download and install XML Notepad
 #>
 
-[CmdletBinding(DefaultParameterSetName = 'Folder')]
+[CmdletBinding(DefaultParameterSetName = 'Folder', SupportsShouldProcess)]
 param (
     # The manifest file to install
     [Parameter(Mandatory)]
@@ -39,30 +39,33 @@ if (-not($AppName)) {$AppName = $xml.assembly.description.product}
 if (-not($Publisher)) {$Publisher = $xml.assembly.description.publisher}
 
 $shortcutDir = Join-Path ([System.Environment]::GetFolderPath('Programs')) ($Publisher)
-
-if (-not(Test-Path -PathType Container -Path $shortcutDir)) {
-    mkdir $shortcutDir
-}
-
 $location = Join-Path $shortcutDir ($AppName + '.lnk')
 
-try {
-    $IconLocation = Get-ClickOnceApplicationIcon $manifest
-    # TODO: copy/save file, handle urls
-} catch {
-    Write-Warning ('Unable to get icon for {0}: {1}' -f $AppName, $_.Exception.Message)
+if ($PSCmdlet.ShouldProcess($manifest, 'Retrieve icon')) {
+    try {
+        $IconLocation = Get-ClickOnceApplicationIcon $manifest
+        # TODO: copy/save file, handle urls
+    } catch {
+        Write-Warning ('Unable to get icon for {0}: {1}' -f $AppName, $_.Exception.Message)
+    }
 }
 
-$shell = New-Object -ComObject WScript.Shell
-$shortcut = $shell.CreateShortcut($Location)
+if ($PSCmdlet.ShouldProcess($Location, 'Create shortcut')) {
+    if (-not(Test-Path -PathType Container -Path $shortcutDir)) {
+        mkdir $shortcutDir
+    }
 
-# if ($Arguments) {$shortcut.Arguments = $Arguments}
-if ($Description) {$shortcut.Destination = $Destination}
-# if ($Hotkey) {$shortcut.Hotkey = $Hotkey}
-if ($IconLocation) {$shortcut.IconLocation = $IconLocation}
-if ($TargetPath) {$shortcut.TargetPath = $TargetPath}
-# if ($WindowStyle) {$shortcut.WindowStyle = $WindowStyle}
-# if ($WorkingDirectory) {$shortcut.WorkingDirectory = $WorkingDirectory}
+    $shell = New-Object -ComObject WScript.Shell
+    $shortcut = $shell.CreateShortcut($Location)
 
-$shortcut.Save()
-$shortcut
+    # if ($Arguments) {$shortcut.Arguments = $Arguments}
+    if ($Description) {$shortcut.Destination = $Destination}
+    # if ($Hotkey) {$shortcut.Hotkey = $Hotkey}
+    if ($IconLocation) {$shortcut.IconLocation = $IconLocation}
+    if ($TargetPath) {$shortcut.TargetPath = $TargetPath}
+    # if ($WindowStyle) {$shortcut.WindowStyle = $WindowStyle}
+    # if ($WorkingDirectory) {$shortcut.WorkingDirectory = $WorkingDirectory}
+
+    $shortcut.Save()
+    $shortcut
+}
