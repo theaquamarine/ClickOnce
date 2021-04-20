@@ -2,8 +2,8 @@
 .SYNOPSIS
     Add a start menu shortcut to "install" a network-only ClickOnce application
 .EXAMPLE
-    PS C:\> Install-ClickOnceApplication.ps1 'https://lovettsoftwarestorage.blob.core.windows.net/downloads/XmlNotepad/XmlNotepad.application'
-    Download and install XML Notepad
+    PS C:\> New-ClickOnceApplicationShortcut.ps1 'http://configmgr/ReportServer/ReportBuilder/ReportBuilder_3_0_0_0.application'
+    Add a shortcut for Report Builder to the start menu
 #>
 
 [CmdletBinding(DefaultParameterSetName = 'Folder', SupportsShouldProcess)]
@@ -19,15 +19,22 @@ param (
     [Alias('AppName','Name')]
     [string]$Product,
     # The folder to list the app in on the start menu. Defaults to publisher from the manifest.
-    [Parameter(ParameterSetName='Folder')][Alias('Publisher')]
+    [Parameter(ParameterSetName='Folder')][Alias('Publisher','MenuStructure')]
     [string]$Folder,
     [string]$Description
 )
+    # TODO: Fix Location ParameterSet, rename to ExplicitLocation or something.
+        # TODO: Consider removing Publisher/Suite param.
+        # Relative to Programs
+        # Create normal Product.lnk if it's not a shortcut
     # $IconLocation, # default to try from manifest
-    # $Arguments,
-    # [string]$Hotkey,
-    # $WindowStyle,
-    # $WorkingDirectory
+    # $IconSaveLocation to pass to Save-ClickOnceApplicationIcon
+    # Other shortcut parameters:
+        # $Arguments,
+        # [string]$Hotkey,
+        # $WindowStyle,
+        # $WorkingDirectory
+    # TODO: consider populating ARP, act like a custom installer? https://docs.microsoft.com/en-us/visualstudio/deployment/walkthrough-creating-a-custom-installer-for-a-clickonce-application?view=vs-2019
 
 . .\Import-ClickOnceManifest.ps1
 . .\Save-ClickOnceApplicationIcon.ps1
@@ -76,3 +83,5 @@ if ($PSCmdlet.ShouldProcess($Location, 'Create shortcut')) {
     $shortcut.Save()
     $shortcut
 }
+
+# TODO: run install afterwards? No idea if it actually does anything, but seems a popular thing to do.
