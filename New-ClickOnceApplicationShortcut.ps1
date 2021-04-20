@@ -16,7 +16,8 @@ param (
     $Location,
     # The name to install the app as. Defaults to app name from manifest.
     [Parameter(ParameterSetName='Folder')]
-    [string]$AppName, 
+    [Alias('AppName','Name')]
+    [string]$Product,
     # The folder to list the app in on the start menu. Defaults to publisher from the manifest.
     [Parameter(ParameterSetName='Folder')][Alias('Publisher')]
     [string]$Folder,
@@ -35,7 +36,7 @@ param (
 
 $TargetPath = $Manifest
 
-if (-not($AppName)) {$AppName = $xml.assembly.description.product}
+if (-not($Product)) {$Product = $xml.assembly.description.product}
 $Publisher = $xml.assembly.description.publisher
 $Suite = $xml.assembly.description.suite
 
@@ -43,14 +44,16 @@ if (-not($Folder)) {
     $Folder = if ($Suite) { Join-Path $Publisher $Suite} else {$Publisher}
 }
 
+# TODO: if not $Folder.IsAbsolute {$Folder = Join-Path ([System.Environment]::GetFolderPath('Programs')) ($Folder)}
+
 $shortcutDir = Join-Path ([System.Environment]::GetFolderPath('Programs')) ($Folder)
-$location = Join-Path $shortcutDir ($AppName + '.lnk')
+$location = Join-Path $shortcutDir ($Product + '.lnk')
 
 if ($PSCmdlet.ShouldProcess($manifest, 'Retrieve icon')) {
     try {
         $IconLocation = Save-ClickOnceApplicationIcon -Manifest $manifest
     } catch {
-        Write-Warning ('Unable to get icon for {0}: {1}' -f $AppName, $_.Exception.Message)
+        Write-Warning ('Unable to get icon for {0}: {1}' -f $Product, $_.Exception.Message)
     }
 }
 
