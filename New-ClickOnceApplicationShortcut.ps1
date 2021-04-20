@@ -29,7 +29,7 @@ param (
     # $WorkingDirectory
 
 . .\Import-ClickOnceManifest.ps1
-. .\Get-ClickOnceApplicationIcon.ps1
+. .\Save-ClickOnceApplicationIcon.ps1
 
 [xml]$xml = Import-ClickOnceManifest $manifest
 
@@ -48,8 +48,7 @@ $location = Join-Path $shortcutDir ($AppName + '.lnk')
 
 if ($PSCmdlet.ShouldProcess($manifest, 'Retrieve icon')) {
     try {
-        $IconLocation = Get-ClickOnceApplicationIcon $manifest
-        # TODO: copy/save file, handle urls
+        $IconLocation = Save-ClickOnceApplicationIcon -Manifest $manifest
     } catch {
         Write-Warning ('Unable to get icon for {0}: {1}' -f $AppName, $_.Exception.Message)
     }
