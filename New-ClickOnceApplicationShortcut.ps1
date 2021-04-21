@@ -33,7 +33,10 @@ param (
 . .\Import-ClickOnceManifest.ps1
 . .\Save-ClickOnceApplicationIcon.ps1
 
-[xml]$xml = Import-ClickOnceManifest $manifest
+if (-not($Product -and $Folder)) {
+    # Only load the manifest if we actually need something from it
+    [xml]$xml = Import-ClickOnceManifest $manifest -ErrorAction Stop
+}
 
 $TargetPath = $Manifest
 
