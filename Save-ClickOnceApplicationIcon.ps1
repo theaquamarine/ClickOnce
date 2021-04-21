@@ -9,6 +9,7 @@ function Save-ClickOnceApplicationIcon {
         # The location to save the file to. Defaults to %temp%.
         $Destination = $env:TEMP
     )
+    # TODO: IconFile parameter to use specific file rather than finding via manifest
     # TODO: better default for $Destination? Temp isn't a great choice as it needs to be kept
         # existing location for files? temp for everything?
 

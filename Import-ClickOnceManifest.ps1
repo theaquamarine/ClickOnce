@@ -6,6 +6,8 @@ function Import-ClickOnceManifest {
         [Parameter(Mandatory)]
         [string]$Manifest 
     )
+    # TODO: Option to use deployment manifest (or retry using it) from /assembly/deployment/deploymentProvider/@codebase if present
+
     if (($uri = $manifest -as [uri]) -and ($uri.scheme -in 'http','https')) {
         # There has got to be an easier way to deal with the BOM
         $content = Invoke-WebRequest $manifest -ErrorAction Stop| Select-Object -ExpandProperty Content

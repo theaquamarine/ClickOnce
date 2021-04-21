@@ -7,7 +7,7 @@ function Get-ClickOnceApplicationIcon {
         $Manifest
     )
     # TODO: identify if it's a deployment manifest or app manifest & handle appopriately
-    # TODO: Save-ClickOnceApplicationIcon
+    # TODO: use/retry using deployment manifest from /assembly/deployment/deploymentProvider/@codebase if present - $Manifest may not point to current program version and host may only provide current version
 
     [xml]$deploymentManifest = Import-ClickOnceManifest $Manifest
 
