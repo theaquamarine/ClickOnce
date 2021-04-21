@@ -17,11 +17,12 @@ param (
     # The location to put the shortcut, absolute or relative to the user's Programs folder. Defaults to $programs\$publisher\$suite from the manifest.
     [Alias('Publisher','MenuStructure','Location')]
     [string]$Folder,
-    [string]$Description
+    [string]$Description,
+    # The icon to use for the shortcut. Defaults to icon from manifest.
+    $IconFile
 )
     # Combine Folder + Product into single param with path + shortcut name?
         # Create normal Product.lnk if it's not a shortcut
-    # TODO: $IconSaveLocation to pass to Save-ClickOnceApplicationIcon
     # TODO: Other shortcut parameters:
         # $Arguments,
         # [string]$Hotkey,
@@ -56,7 +57,8 @@ $location = Join-Path $shortcutDir ($Product + '.lnk')
 
 if ($PSCmdlet.ShouldProcess($manifest, 'Retrieve icon')) {
     try {
-        $IconLocation = Save-ClickOnceApplicationIcon -Manifest $manifest
+        $IconLocation = if ($IconFile) {Save-ClickOnceApplicationIcon -IconFile $IconFile}
+            else {Save-ClickOnceApplicationIcon -Manifest $manifest}
     } catch {
         Write-Warning ('Unable to get icon for {0}: {1}' -f $Product, $_.Exception.Message)
     }
