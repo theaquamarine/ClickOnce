@@ -55,13 +55,18 @@ $shortcutDir = if (Split-Path -IsAbsolute $Folder) {$Folder} else {
 
 $location = Join-Path $shortcutDir ($Product + '.lnk')
 
-if ($PSCmdlet.ShouldProcess($manifest, 'Retrieve icon')) {
-    try {
-        $IconLocation = if ($IconFile) {Save-ClickOnceApplicationIcon -IconFile $IconFile}
-            else {Save-ClickOnceApplicationIcon -Manifest $manifest}
-    } catch {
-        Write-Warning ('Unable to get icon for {0}: {1}' -f $Product, $_.Exception.Message)
-    }
+try {
+    $IconLocation = if ($IconFile) {
+            if ($PSCmdlet.ShouldProcess($IconFile, 'Save icon')) {
+                Save-ClickOnceApplicationIcon -IconFile $IconFile
+            }
+        } else {
+            if ($PSCmdlet.ShouldProcess($manifest, 'Retrieve icon')) {
+                Save-ClickOnceApplicationIcon -Manifest $manifest
+            }
+        }
+} catch {
+    Write-Warning ('Unable to get icon for {0}: {1}' -f $Product, $_.Exception.Message)
 }
 
 if ($PSCmdlet.ShouldProcess($Location, 'Create shortcut')) {
