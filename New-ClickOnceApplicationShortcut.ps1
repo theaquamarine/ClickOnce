@@ -73,7 +73,7 @@ if ($PSCmdlet.ShouldProcess($Location, 'Create shortcut')) {
     $shortcut = $shell.CreateShortcut($Location)
 
     # if ($Arguments) {$shortcut.Arguments = $Arguments}
-    if ($Description) {$shortcut.Destination = $Destination}
+    if ($Description) {$shortcut.Description = $Description}
     # if ($Hotkey) {$shortcut.Hotkey = $Hotkey}
     if ($IconLocation) {$shortcut.IconLocation = $IconLocation}
     if ($TargetPath) {$shortcut.TargetPath = $TargetPath}
