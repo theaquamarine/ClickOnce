@@ -34,11 +34,11 @@ param (
         # $WorkingDirectory
     # TODO: consider populating ARP, act like a custom installer? https://docs.microsoft.com/en-us/visualstudio/deployment/walkthrough-creating-a-custom-installer-for-a-clickonce-application?view=vs-2019
 
-. .\Import-ClickOnceManifest.ps1
 . .\Save-ClickOnceApplicationIcon.ps1
 
 if (-not($Product -and $Folder)) {
     # Only load the manifest if we actually need something from it
+    . .\Import-ClickOnceManifest.ps1
     [xml]$xml = Import-ClickOnceManifest $manifest -ErrorAction Stop
 }
 
