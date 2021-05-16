@@ -42,8 +42,6 @@ if (-not($Product -and $Folder)) {
     [xml]$xml = Import-ClickOnceManifest $manifest -ErrorAction Stop
 }
 
-$TargetPath = $Manifest
-
 if (-not($Product)) {$Product = $xml.assembly.description.product}
 $Publisher = $xml.assembly.description.publisher
 $Suite = $xml.assembly.description.suite
@@ -87,12 +85,12 @@ if ($PSCmdlet.ShouldProcess($Location, 'Create shortcut')) {
 
     $shell = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut($Location)
+    $shortcut.TargetPath = $Manifest
 
     # if ($Arguments) {$shortcut.Arguments = $Arguments}
     if ($Description) {$shortcut.Description = $Description}
     # if ($Hotkey) {$shortcut.Hotkey = $Hotkey}
     if ($IconLocation) {$shortcut.IconLocation = $IconLocation}
-    if ($TargetPath) {$shortcut.TargetPath = $TargetPath}
     # if ($WindowStyle) {$shortcut.WindowStyle = $WindowStyle}
     # if ($WorkingDirectory) {$shortcut.WorkingDirectory = $WorkingDirectory}
 
@@ -101,4 +99,4 @@ if ($PSCmdlet.ShouldProcess($Location, 'Create shortcut')) {
 }
 
 # TODO: run install afterwards? No idea if it actually does anything, but seems a popular thing to do.
-# Install-ClickOnceApplication.ps1 -Manifest $TargetPath
+# Install-ClickOnceApplication.ps1 -Manifest $Manifest
