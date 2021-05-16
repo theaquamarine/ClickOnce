@@ -63,13 +63,16 @@ if ($IconFile -and (Test-Path $IconFile)) {$appsplat['IconLocationFile'] = $Icon
 New-CMApplication @appsplat -ErrorAction Stop
 #endregion Application
 
-#region Detection script
-# TODO: Work out detection script/$shortcutDir in advance? Can at least decide if it's absolute or not
+#region Detection & uninstall scripts
 if (Split-Path -IsAbsolute $Folder) {
     # Path is absolute so we know where it will be installed in advance
     $location = Join-Path $Folder ($Product + '.lnk')
     $detectionScript = @'
 if (Test-Path '{0}') {{'Installed'}}
+'@ -f $location
+    # TODO: Delete icon & folder if empty
+    $uninstallCommand = @'
+powershell.exe -noninteractive -noprofile -executionpolicy bypass -command "Remove-Item '{0}'"
 '@ -f $location
 } else {
     # Path is relative to $Programs so must be worked out as user
@@ -79,23 +82,25 @@ Join-Path (Join-Path ([System.Environment]::GetFolderPath('Programs')) '{0}') ('
     $detectionScript = @'
 if (Test-Path ({0})) {{'Installed'}}
 '@ -f $location
+    # TODO: Delete icon & folder if empty
+    $uninstallCommand = @'
+powershell.exe -noninteractive -noprofile -executionpolicy bypass -command "Remove-Item ({0})"
+'@ -f $location
 }
-#endregion Detection script
+#endregion Detection & uninstall scripts
 
 #region Deployment Type
 $dtsplat = @{
     ApplicationName = $appsplat.Name
-    DeploymentTypeName = '{0} ClickOnce Installer' -f $appsplat.Name
+    DeploymentTypeName = '{0} ClickOnce Shortcut Installer' -f $appsplat.Name
     InstallCommand = 'powershell.exe -noprofile -noninteractive -executionpolicy bypass -File New-ClickOnceApplicationShortcut.ps1 -Manifest "{0}" -Product "{1}" -Folder "{2}" -Description "{3}" -IconFile "{4}" -IconSaveLocation "{5}"' -f $manifest, $Product, $Folder, $Description, $IconFile, $IconSaveLocation
     ScriptText = $detectionScript
     ScriptLanguage = 'PowerShell'
     InstallationBehaviorType = 'InstallForUser'
     ContentLocation = $ContentLocation
     UserInteractionMode = 'Hidden'
-#     UninstallCommand = @'
-# powershell.exe -noninteractive -noprofile -executionpolicy bypass -command "exit 0"
-# '@
-#     UninstallOption = 'NoneRequired'
+    UninstallCommand = $uninstallCommand
+    UninstallOption = 'NoneRequired'
 }
 
 Add-CMScriptDeploymentType @dtsplat -ErrorAction Stop
