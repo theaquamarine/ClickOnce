@@ -68,14 +68,13 @@ $dtsplat = @{
     ApplicationName = $appsplat.Name
     DeploymentTypeName = '{0} ClickOnce Installer' -f $appsplat.Name
     InstallCommand = 'powershell.exe -noprofile -noninteractive -executionpolicy bypass -File New-ClickOnceApplicationShortcut.ps1 -Manifest "{0}" -Product "{1}" -Folder "{2}" -Description "{3}" -IconFile "{4}" -IconSaveLocation "{5}"' -f $manifest, $Product, $Folder, $Description, $IconFile, $IconSaveLocation
-#     ScriptText = @'
-# $shortcutDir = if (Split-Path -IsAbsolute {0}) {{0}} else {
-#     Join-Path ([System.Environment]::GetFolderPath('Programs')) $Folder
-# }
-# $location = Join-Path $shortcutDir ({1} + '.lnk')
-# if (Test-Path ($location) {'Installed'}
-# '@ -f $Folder, $Product
-    ScriptText = 'exit 0'
+    ScriptText = @'
+$shortcutDir = if (Split-Path -IsAbsolute '{0}') {{'{0}'}} else {{
+    Join-Path ([System.Environment]::GetFolderPath('Programs')) '{0}' 
+}}
+$location = Join-Path $shortcutDir ('{1}' + '.lnk')
+if (Test-Path ($location)) {{'Installed'}}
+'@ -f $Folder, $Product
     ScriptLanguage = 'PowerShell'
     InstallationBehaviorType = 'InstallForUser'
     ContentLocation = $ContentLocation
