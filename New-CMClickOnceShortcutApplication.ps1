@@ -1,14 +1,12 @@
 <#
 .SYNOPSIS
-    Create a ConfigMgr application & deployment type for a ClickOnce deployment manifest
+    Create a ConfigMgr application & deployment type for a ClickOnce shortcut
 .DESCRIPTION
-    Create an application in Configuration Manager using the details from a ClickOnce deployment manifest and a deployment type to silently install it using Install-ClickOnceApplication.ps1 for users.
+    Create an application in Configuration Manager which creates a start menu shortcut to a ClickOnce application, for network-only ClickOnce deployments.
 .EXAMPLE
-    PS P01:\> C:New-CMClickOnceApplication.ps1 -Manifest "https://lovettsoftwarestorage.blob.core.windows.net/downloads/XmlNotepad/XmlNotepad.application" -ContentLocation '\\localhost\c\ClickOnce'
-    Create a ConfigMgr application to silently install XML Notepad using Install-ClickOnceApplication.ps1 located in \\localhost\c\ClickOnce
+    PS P01:\> . 'C:New-CMClickOnceShortcutApplication.ps1' -Manifest 'http://configmgr/ReportServer/ReportBuilder/ReportBuilder_3_0_0_0.application' -ContentLocation '\\localhost\c$\Users\Administrator\ClickOnce' -Description 'Actually XML Notepad' -Product 'Important Software' -Folder 'Tailspin Toys' -IconFile C:\Users\Administrator\icon.ico -IconSaveLocation 'TailSpin Icons'
 
-    PS P01:\> . 'c:\Users\Administrator\clickonce\New-CMClickOnceApplication.ps1' 'https://sccmclictr.azurewebsites.net/ClickOnce/SCCMCliCtrWPF.application' '\\localhost\c$\Packages\ClickOnce'
-    Create a ConfigMgr application for Client Center for Configuration Manager's ClickOnce installer
+    Create a start menu shortcut called 'Important Software' in a 'Tailspin Toys' folder which launches Report Builder, with an icon from C:\Users\Administrator\icon.ico stored in %AppData%\TailSpin Icons\icon.ico.
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -35,6 +33,8 @@ param (
     [Parameter(Mandatory)]
     $IconSaveLocation
 )
+# TODO: Get properties from manifest if not specified
+# TODO: Delete icon & folder if empty when uninstalling
 
 if (-not($Product -and $Folder)) {
     # Only load the manifest if we actually need something from it
@@ -70,7 +70,6 @@ if (Split-Path -IsAbsolute $Folder) {
     $detectionScript = @'
 if (Test-Path '{0}') {{'Installed'}}
 '@ -f $location
-    # TODO: Delete icon & folder if empty
     $uninstallCommand = @'
 powershell.exe -noninteractive -noprofile -executionpolicy bypass -command "Remove-Item '{0}'"
 '@ -f $location
@@ -82,7 +81,6 @@ Join-Path (Join-Path ([System.Environment]::GetFolderPath('Programs')) '{0}') ('
     $detectionScript = @'
 if (Test-Path ({0})) {{'Installed'}}
 '@ -f $location
-    # TODO: Delete icon & folder if empty
     $uninstallCommand = @'
 powershell.exe -noninteractive -noprofile -executionpolicy bypass -command "Remove-Item ({0})"
 '@ -f $location
