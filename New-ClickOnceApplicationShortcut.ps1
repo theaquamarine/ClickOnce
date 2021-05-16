@@ -29,7 +29,6 @@ param (
     # TODO: Other shortcut parameters:
         # $Arguments,
         # [string]$Hotkey,
-        # $IconLocation, # default to try from manifest
         # $WindowStyle,
         # $WorkingDirectory
     # TODO: consider populating ARP, act like a custom installer? https://docs.microsoft.com/en-us/visualstudio/deployment/walkthrough-creating-a-custom-installer-for-a-clickonce-application?view=vs-2019
@@ -56,27 +55,26 @@ $shortcutDir = if (Split-Path -IsAbsolute $Folder) {$Folder} else {
 
 $location = Join-Path $shortcutDir ($Product + '.lnk')
 
+#region App Icon
+$iconSplat = @{}
+if ($IconFile) {
+    $iconSplat['IconFile'] = $IconFile
+    $iconsouce = $IconFile
+}
+else {
+    $iconSplat['Manifest'] = $Manifest
+    $iconsouce = $Manifest
+}
+if ($IconSaveLocation) {$iconSplat['Destination'] = $IconSaveLocation}
+
 try {
-    $IconLocation = if ($IconFile) {
-            if ($PSCmdlet.ShouldProcess($IconFile, 'Save icon')) {
-                if ($IconSaveLocation) {
-                    Save-ClickOnceApplicationIcon -IconFile $IconFile -Destination $IconSaveLocation
-                } else {
-                    Save-ClickOnceApplicationIcon -IconFile $IconFile
-                }
-            }
-        } else {
-            if ($PSCmdlet.ShouldProcess($manifest, 'Retrieve icon')) {
-                if ($IconSaveLocation) {
-                    Save-ClickOnceApplicationIcon -Manifest $manifest -Destination $IconSaveLocation
-                } else {
-                    Save-ClickOnceApplicationIcon -Manifest $manifest
-                }
-            }
-        }
+    if ($PSCmdlet.ShouldProcess($iconsouce, 'Save icon')) {
+        $IconLocation = Save-ClickOnceApplicationIcon @iconSplat
+    }
 } catch {
     Write-Warning ('Unable to get icon for {0}: {1}' -f $Product, $_.Exception.Message)
 }
+#endregion App Icon
 
 if ($PSCmdlet.ShouldProcess($Location, 'Create shortcut')) {
     if (-not(Test-Path -PathType Container -Path $shortcutDir)) {
