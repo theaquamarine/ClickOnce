@@ -9,7 +9,7 @@ function Save-ClickOnceApplicationIcon {
         # A specific file to save
         [Parameter(Mandatory, ParameterSetName = 'IconFile')]
         [uri]$IconFile,
-        # The location to save the file to. Defaults to %temp%.
+        # The location to save the file to, relative to %AppData%. Defaults to %temp%.
         $Destination = $env:TEMP
     )
     # TODO: better default for $Destination? Temp isn't a great choice as it needs to be kept
@@ -20,9 +20,23 @@ function Save-ClickOnceApplicationIcon {
         Write-Debug "Found icon from manifest $iconFile"
     }
 
-    # TODO: create destination dir if needed
+    # $Destination is relative to $env:AppData
+    $Destination = if (Split-Path -IsAbsolute $Destination) {$Destination} else {
+        Join-Path ($env:AppData) $Destination
+    }
+
     if (Test-Path -PathType Container $Destination) {
-        # Possibly better to use product name? Icon filename's usually unique but product's probably more reliable
+        # Destination is a directory -> use icon's existing filename
+        $iconfilename = (Split-Path -Leaf $iconFile) -replace '\.deploy$'
+        $Destination = Join-Path $Destination $iconfilename
+    } elseif (Test-Path -PathType Leaf $Destination) {
+        # Nothing to do?
+    } elseif ([IO.Path]::GetExtension($Destination)) {
+        # Has an extension -> it's a file, make parent dir
+        mkdir (Split-Path -Parent $Destination) | Out-Null
+    } else {
+        # no extension -> it's a directory, create and use existing filename
+        mkdir $Destination | Out-Null
         $iconfilename = (Split-Path -Leaf $iconFile) -replace '\.deploy$'
         $Destination = Join-Path $Destination $iconfilename
     }

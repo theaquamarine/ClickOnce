@@ -20,7 +20,7 @@ param (
     [string]$Description,
     # The icon to use for the shortcut. Defaults to icon from manifest.
     $IconFile,
-    # The location to save the application icon to. Defaults to %temp%.
+    # The location to save the application icon to, relative to %AppData%. Defaults to %temp%.
     $IconSaveLocation
 )
     # Combine Folder + Product into single param with path + shortcut name?
