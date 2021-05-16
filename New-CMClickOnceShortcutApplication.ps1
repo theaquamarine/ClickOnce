@@ -63,18 +63,31 @@ if ($IconFile -and (Test-Path $IconFile)) {$appsplat['IconLocationFile'] = $Icon
 New-CMApplication @appsplat -ErrorAction Stop
 #endregion Application
 
+#region Detection script
+# TODO: Work out detection script/$shortcutDir in advance? Can at least decide if it's absolute or not
+if (Split-Path -IsAbsolute $Folder) {
+    # Path is absolute so we know where it will be installed in advance
+    $location = Join-Path $Folder ($Product + '.lnk')
+    $detectionScript = @'
+if (Test-Path '{0}') {{'Installed'}}
+'@ -f $location
+} else {
+    # Path is relative to $Programs so must be worked out as user
+    $location = @'
+Join-Path (Join-Path ([System.Environment]::GetFolderPath('Programs')) '{0}') ('{1}' + '.lnk')
+'@ -f $Folder, $Product
+    $detectionScript = @'
+if (Test-Path ({0})) {{'Installed'}}
+'@ -f $location
+}
+#endregion Detection script
+
 #region Deployment Type
 $dtsplat = @{
     ApplicationName = $appsplat.Name
     DeploymentTypeName = '{0} ClickOnce Installer' -f $appsplat.Name
     InstallCommand = 'powershell.exe -noprofile -noninteractive -executionpolicy bypass -File New-ClickOnceApplicationShortcut.ps1 -Manifest "{0}" -Product "{1}" -Folder "{2}" -Description "{3}" -IconFile "{4}" -IconSaveLocation "{5}"' -f $manifest, $Product, $Folder, $Description, $IconFile, $IconSaveLocation
-    ScriptText = @'
-$shortcutDir = if (Split-Path -IsAbsolute '{0}') {{'{0}'}} else {{
-    Join-Path ([System.Environment]::GetFolderPath('Programs')) '{0}' 
-}}
-$location = Join-Path $shortcutDir ('{1}' + '.lnk')
-if (Test-Path ($location)) {{'Installed'}}
-'@ -f $Folder, $Product
+    ScriptText = $detectionScript
     ScriptLanguage = 'PowerShell'
     InstallationBehaviorType = 'InstallForUser'
     ContentLocation = $ContentLocation
