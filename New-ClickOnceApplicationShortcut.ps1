@@ -19,10 +19,13 @@ param (
     [string]$Folder,
     [string]$Description,
     # The icon to use for the shortcut. Defaults to icon from manifest.
-    $IconFile
+    $IconFile,
+    # The location to save the application icon to. Defaults to %temp%.
+    $IconSaveLocation
 )
     # Combine Folder + Product into single param with path + shortcut name?
         # Create normal Product.lnk if it's not a shortcut
+    # $Folder may be a better default icon save location? Images wouldn't be shown on start menu
     # TODO: Other shortcut parameters:
         # $Arguments,
         # [string]$Hotkey,
@@ -58,11 +61,19 @@ $location = Join-Path $shortcutDir ($Product + '.lnk')
 try {
     $IconLocation = if ($IconFile) {
             if ($PSCmdlet.ShouldProcess($IconFile, 'Save icon')) {
-                Save-ClickOnceApplicationIcon -IconFile $IconFile
+                if ($IconSaveLocation) {
+                    Save-ClickOnceApplicationIcon -IconFile $IconFile -Destination $IconSaveLocation
+                } else {
+                    Save-ClickOnceApplicationIcon -IconFile $IconFile
+                }
             }
         } else {
             if ($PSCmdlet.ShouldProcess($manifest, 'Retrieve icon')) {
-                Save-ClickOnceApplicationIcon -Manifest $manifest
+                if ($IconSaveLocation) {
+                    Save-ClickOnceApplicationIcon -Manifest $manifest -Destination $IconSaveLocation
+                } else {
+                    Save-ClickOnceApplicationIcon -Manifest $manifest
+                }
             }
         }
 } catch {
@@ -90,3 +101,4 @@ if ($PSCmdlet.ShouldProcess($Location, 'Create shortcut')) {
 }
 
 # TODO: run install afterwards? No idea if it actually does anything, but seems a popular thing to do.
+# Install-ClickOnceApplication.ps1 -Manifest $TargetPath
