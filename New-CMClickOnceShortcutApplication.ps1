@@ -33,7 +33,9 @@ param (
     [Parameter(Mandatory)]
     $IconSaveLocation,
     # The icon to display in Software Center
-    $ApplicationIcon
+    $ApplicationIcon,
+    # The publisher to display in Software Center
+    $ApplicationPublisher
 )
 # TODO: Get properties from manifest if not specified
 # TODO: Delete icon & folder if empty when uninstalling
@@ -54,7 +56,11 @@ $appsplat = @{
 }
 
 # Use first folder in path as Publisher
-$appsplat['Publisher'] = $Folder -split '\\|/' | Select -First 1
+if ($ApplicationPublisher) {
+    $appsplat['Publisher'] = $ApplicationPublisher
+} else {
+    $appsplat['Publisher'] = $Folder -split '\\|/' | Select -First 1
+}
 
 # if ($manifestContent.assembly.description.supportUrl) {
 #     $appSplat['UserDocumentation'] = $manifestContent.assembly.description.supportUrl
