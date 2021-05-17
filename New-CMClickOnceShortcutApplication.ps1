@@ -57,7 +57,10 @@ $appsplat['Publisher'] = $Folder -split '\\|/' | Select -First 1
 # if ($manifestContent.assembly.description.supportUrl) {
 #     $appSplat['UserDocumentation'] = $manifestContent.assembly.description.supportUrl
 # }
-if ($Description) {$appsplat['Description'] = $Description}
+if ($Description) {
+    $appsplat['Description'] = $Description
+    $appsplat['LocalizedDescription'] = $Description
+}
 if ($IconFile -and (Test-Path $IconFile)) {$appsplat['IconLocationFile'] = $IconFile}
 
 New-CMApplication @appsplat -ErrorAction Stop
