@@ -31,7 +31,9 @@ param (
     $IconFile,
     # The location to save the application icon to. Defaults to %temp%.
     [Parameter(Mandatory)]
-    $IconSaveLocation
+    $IconSaveLocation,
+    # The icon to display in Software Center
+    $ApplicationIcon
 )
 # TODO: Get properties from manifest if not specified
 # TODO: Delete icon & folder if empty when uninstalling
@@ -61,7 +63,14 @@ if ($Description) {
     $appsplat['Description'] = $Description
     $appsplat['LocalizedDescription'] = $Description
 }
-if ($IconFile -and (Test-Path $IconFile)) {$appsplat['IconLocationFile'] = $IconFile}
+if ($ApplicationIcon) {$appsplat['IconLocationFile'] = $ApplicationIcon}
+elseif ($IconFile) {
+    if (Test-Path $IconFile) {$appsplat['IconLocationFile'] = $IconFile}
+    elseif (Test-Path (Join-Path $ContentLocation $IconFile)) {
+        $appsplat['IconLocationFile'] = Join-Path $ContentLocation $IconFile
+    }
+}
+
 
 New-CMApplication @appsplat -ErrorAction Stop
 #endregion Application
