@@ -94,8 +94,8 @@ powershell.exe -noninteractive -noprofile -executionpolicy bypass -command "Remo
 } else {
     # Path is relative to $Programs so must be worked out as user
     $location = @'
-Join-Path (Join-Path ([System.Environment]::GetFolderPath('Programs')) '{0}') ('{1}' + '.lnk')
-'@ -f $Folder, $Product
+Join-Path ([System.Environment]::GetFolderPath('Programs')) '{0}'
+'@ -f (Join-Path $Folder ($Product + '.lnk'))
     $detectionScript = @'
 if (Test-Path ({0})) {{'Installed'}}
 '@ -f $location
